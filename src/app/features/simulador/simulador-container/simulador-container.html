@@ -1,0 +1,36 @@
+<div class="page">
+  <header class="hero">
+    <p class="eyebrow">Micro-inversiones</p>
+    <h1>Simulador de inversiones</h1>
+    <p class="lead">
+      Calcula tu ganancia en tiempo real y registra tu inversión con tasas según el plazo.
+    </p>
+  </header>
+
+  @if (mensajeExito()) {
+    <p class="toast success" role="status">{{ mensajeExito() }}</p>
+  }
+
+  <div class="layout">
+    <section class="panel">
+      <h2 class="panel-title">Simular</h2>
+      <app-simulador-form
+        [form]="form"
+        [simulacion]="simulacion()"
+        [cargando]="cargandoSimulacion()"
+        [errorSimulacion]="errorSimulacion()"
+        [registrando]="registrando()"
+        (simular)="onSimular()"
+        (registrar)="onRegistrar()"
+      />
+    </section>
+
+    <section class="panel panel-wide">
+      <app-historial-tabla
+        [inversiones]="historial()"
+        [cargando]="cargandoHistorial()"
+        [error]="errorHistorial()"
+      />
+    </section>
+  </div>
+</div>

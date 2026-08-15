@@ -1,0 +1,104 @@
+<form class="form" [formGroup]="form()" (ngSubmit)="onSubmit()" novalidate>
+  <div class="field">
+    <label for="monto">Monto a invertir (S/)</label>
+    <input
+      id="monto"
+      name="monto"
+      type="number"
+      formControlName="monto"
+      min="100"
+      step="50"
+      placeholder="Ej. 1500"
+      autocomplete="off"
+    />
+
+    @if (montoCtrl?.invalid && montoCtrl?.touched) {
+      <p class="error" role="alert">
+        @if (montoCtrl?.errors?.['required']) {
+          Ingresa un monto.
+        } @else if (montoCtrl?.errors?.['min']) {
+          El monto mínimo es S/ 100.00
+        }
+      </p>
+    }
+  </div>
+
+  <div class="field">
+    <div class="plazo-header">
+      <label for="plazoMeses">Plazo (meses)</label>
+      <span class="plazo-value">{{ plazoCtrl?.value }} meses</span>
+    </div>
+
+    <input
+      id="plazoMesesSlider"
+      class="slider"
+      type="range"
+      formControlName="plazoMeses"
+      min="1"
+      max="24"
+      step="1"
+      aria-label="Plazo en meses (slider)"
+    />
+
+    <select
+      id="plazoMeses"
+      name="plazoMeses"
+      formControlName="plazoMeses"
+      aria-label="Seleccionar plazo en meses"
+    >
+      @for (mes of plazos; track mes) {
+        <option [value]="mes">{{ mes }} {{ mes === 1 ? 'mes' : 'meses' }}</option>
+      }
+    </select>
+  </div>
+
+  <section class="tarjeta-resultado resumen" aria-live="polite">
+    <h2>Resumen de simulación</h2>
+
+    @if (cargando()) {
+      <p class="hint">Calculando…</p>
+    } @else if (errorSimulacion()) {
+      <p class="error" role="alert">{{ errorSimulacion() }}</p>
+    } @else if (simulacion(); as s) {
+      <dl class="resumen-grid">
+        <div>
+          <dt>Tasa asignada</dt>
+          <dd>{{ s.tasaAplicada | percent: '1.1-2' : 'en-US' }}</dd>
+        </div>
+        <div>
+          <dt>Ganancia estimada</dt>
+          <dd>S/ {{ s.gananciaEstimada | number: '1.2-2' : 'en-US' }}</dd>
+        </div>
+        <div class="total">
+          <dt>Total a recibir</dt>
+          <dd>S/ {{ s.montoTotal | number: '1.2-2' : 'en-US' }}</dd>
+        </div>
+      </dl>
+    } @else {
+      <p class="hint">Escribe un monto válido (≥ S/ 100) para ver la simulación.</p>
+    }
+  </section>
+
+  <div class="actions">
+    <button type="submit" [disabled]="form().invalid || cargando()">
+      @if (cargando()) {
+        Simulando…
+      } @else {
+        Simular
+      }
+    </button>
+
+    <button
+      type="button"
+      class="secondary"
+      [disabled]="form().invalid || registrando() || !simulacion()"
+      (click)="onRegistrar()"
+    >
+      @if (registrando()) {
+        Registrando…
+      } @else {
+        Registrar inversión
+      }
+    </button>
+  </div>
+</form>

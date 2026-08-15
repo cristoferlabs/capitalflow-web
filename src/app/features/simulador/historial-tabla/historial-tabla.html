@@ -1,0 +1,47 @@
+<section class="historial">
+  <header>
+    <h2>Historial de inversiones</h2>
+    <p>Inversiones registradas del usuario seleccionado.</p>
+  </header>
+
+  @if (cargando()) {
+    <p class="hint">Cargando historial…</p>
+  } @else if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (inversiones().length === 0) {
+    <p class="hint">Aún no hay inversiones registradas.</p>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Usuario</th>
+            <th>Monto</th>
+            <th>Plazo</th>
+            <th>Tasa</th>
+            <th>Ganancia</th>
+            <th>Total</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (inv of inversiones(); track inv.id) {
+            <tr>
+              <td>{{ inv.creadaEn | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ inv.usuario.nombre }}</td>
+              <td>{{ inv.monto | currency: 'PEN':'symbol-narrow':'1.2-2' }}</td>
+              <td>{{ inv.plazoMeses }} meses</td>
+              <td>{{ inv.tasaAnual | percent: '1.1-2' }}</td>
+              <td>{{ inv.ganancia | currency: 'PEN':'symbol-narrow':'1.2-2' }}</td>
+              <td>{{ inv.montoFinal | currency: 'PEN':'symbol-narrow':'1.2-2' }}</td>
+              <td>
+                <span class="badge" [attr.data-estado]="inv.estado">{{ inv.estado }}</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
