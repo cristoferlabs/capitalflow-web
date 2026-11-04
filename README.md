@@ -1,48 +1,48 @@
-# Frontend Micro-Inversiones
+# CapitalFlow Web
 
-Interfaz Angular (Smart/Dumb) + RxJS para simular y registrar micro-inversiones contra el API del backend.
+Frontend en **Angular** para simular y registrar micro-inversiones. La simulación se recalcula en vivo mientras el usuario escribe, con un flujo **RxJS** que evita peticiones redundantes, y el flujo principal está cubierto con pruebas **E2E en Cypress**.
 
-## Requisitos
+Parte de **CapitalFlow**: [capitalflow-api](https://github.com/cristoferlabs/capitalflow-api) (API REST).
 
-- Backend corriendo en `http://localhost:3000`
-- Node.js 20+
-
-## Arranque
-
-```bash
-npm install
-npm start
-```
-
-App: `http://localhost:4200`
+![Angular](https://img.shields.io/badge/Angular-22-DD0031?logo=angular&logoColor=white)
+![RxJS](https://img.shields.io/badge/RxJS-7.8-B7178C?logo=reactivex&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Cypress](https://img.shields.io/badge/E2E-Cypress-69D3A7?logo=cypress&logoColor=white)
 
 ## Arquitectura
 
-| Componente | Rol |
-|------------|-----|
-| `SimuladorContainerComponent` | Smart: HTTP, estado, orquestación RxJS |
-| `SimuladorFormComponent` | Dumb: formulario reactivo + tarjeta de resumen |
-| `HistorialTablaComponent` | Dumb: tabla con `@for` / `@if` y `currency:'PEN'` |
-| `InversionesService` | Cliente HTTP centralizado |
+Patrón **Smart / Dumb**: un contenedor orquesta estado y llamadas HTTP; los componentes de presentación solo reciben inputs y emiten eventos.
 
-### Simulación automática (RxJS)
+| Componente | Tipo | Responsabilidad |
+|---|---|---|
+| `SimuladorContainerComponent` | Smart | Estado, llamadas HTTP y orquestación RxJS |
+| `SimuladorFormComponent` | Dumb | Formulario reactivo y tarjeta de resultado |
+| `HistorialTablaComponent` | Dumb | Historial con control flow `@for` / `@if` y `currency:'PEN'` |
+| `InversionesService` | Servicio | Cliente HTTP centralizado del API |
 
-`valueChanges` → `debounceTime(400)` → `distinctUntilChanged` → `switchMap` → `catchError`
+### Simulación en vivo
 
-## Usuario por defecto
-
-Registra e historial usan el usuario seed `1` (Ana Pérez).
-
-## Cypress (E2E)
-
-```bash
-# Terminal 1: frontend
-npm start
-
-# Terminal 2: pruebas
-npm run e2e        # headless
-npm run e2e:open   # UI interactiva
+```
+valueChanges → debounceTime(400) → distinctUntilChanged → switchMap(simular) → catchError
 ```
 
-Spec: `cypress/e2e/simulacion.cy.ts`  
-Valida monto, plazo 12 meses y tarjeta `.tarjeta-resultado` (10%, S/ 200.00, S/ 2,200.00).
+`switchMap` cancela la petición anterior si el usuario sigue escribiendo, así la tarjeta siempre muestra el resultado del último valor.
+
+## Ejecución local
+
+Requisitos: Node.js 20+ y [capitalflow-api](https://github.com/cristoferlabs/capitalflow-api) corriendo en `http://localhost:3000`.
+
+```bash
+npm install
+npm start                      # http://localhost:4200
+```
+
+## Pruebas
+
+```bash
+npm test                       # unitarias (Vitest)
+npm run e2e                    # E2E headless (Cypress, requiere npm start)
+npm run e2e:open               # Cypress interactivo
+```
+
+`cypress/e2e/simulacion.cy.ts` ingresa S/ 2,000 a 12 meses y verifica la tasa (10 %), la ganancia (S/ 200.00) y el monto final (S/ 2,200.00).
